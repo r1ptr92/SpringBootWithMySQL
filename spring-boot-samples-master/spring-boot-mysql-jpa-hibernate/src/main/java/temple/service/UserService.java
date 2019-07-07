@@ -12,7 +12,7 @@ import temple.models.UserResponceDto;
 @Service
 public interface UserService {
 	
-	public void sendOTP(String emailId) throws AddressException, MessagingException;
+	public String sendOTP(String emailId) throws AddressException, MessagingException;
 	
 	public UserResponceDto createUser(User user);
 	

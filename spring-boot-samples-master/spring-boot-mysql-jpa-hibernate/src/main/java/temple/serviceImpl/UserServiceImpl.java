@@ -50,7 +50,6 @@ public class UserServiceImpl implements UserService {
 	  	   BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		   String accessToken = passwordEncoder.encode(user.getEmailId()+date.toString());
 		   user.setAccessToken(accessToken);
-		  
 		   userDao.create(user);
 		   user=userDao.getByEmail(user.getEmailId());
 		   userResponceDto.setAccessToken(user.getAccessToken());
@@ -88,7 +87,7 @@ public class UserServiceImpl implements UserService {
 		//emailMessage.setText(emailBody);// for a text email
 	}
 	@Override
-	public void sendOTP(String emailId) throws AddressException, MessagingException {
+	public String sendOTP(String emailId) throws AddressException, MessagingException {
 		boolean isNumber=emailId.matches("-?\\d+(\\.\\d+)?");
 		User user;
 		if(isNumber) {
@@ -107,8 +106,9 @@ public class UserServiceImpl implements UserService {
 		transport.connect(emailHost, fromUser, fromUserEmailPassword);
 		transport.sendMessage(emailMessage, emailMessage.getAllRecipients());
 		transport.close();
- 	   user.setOTP(Integer.parseInt(otp));
- 	   userDao.update(user);
+	 	   user.setOTP(Integer.parseInt(otp));
+	 	   userDao.update(user);
+ 	   return otp;
 	}
 
 

@@ -54,19 +54,12 @@ public class UserController {
     /**
    * Retrieve the otp for the user with the passed email address.
    */
-  @GetMapping(path = "/user/getotp/{emailId}", produces = MediaType.APPLICATION_JSON_VALUE)
+  	@GetMapping(path = "/user/getotp/{emailId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String getSite(@PathVariable("emailId") String emailId) {
     String otp ="";
-    
     try {
-      User user = userDao.getByEmail(emailId);
-      if(user!=null) {
-    	   userService.sendOTP(emailId);
+    	  otp= userService.sendOTP(emailId);
     	   return otp;
-      }else {
-    	  return "Invalide User Id";
-      }
-      
     }
     catch (Exception ex) {
       return "Invalide User Id";
