@@ -1,13 +1,20 @@
-package netgloo.controllers;
+package temple.controllers;
 
-import netgloo.models.User;
-import netgloo.models.UserDao;
+import temple.Dao.UserDao;
+import temple.models.User;
+import temple.models.UserResponceDto;
+import temple.service.UserService;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 /**
  * Class UserController
  */
@@ -17,81 +24,76 @@ public class UserController {
   // ------------------------
   // PUBLIC METHODS
   // ------------------------
+	  // Wire the UserDao used inside this controller.
+	  @Autowired
+	  private UserDao userDao;
 
+	  @Autowired
+	  private UserService userService;
+	  
   /**
    * Create a new user with an auto-generated id and email and name as passed 
    * values.
    */
-  @RequestMapping(value="/create")
-  @ResponseBody
-  public String create(String email, String name) {
+  @PostMapping(path = "/user/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<UserResponceDto> createUser(@RequestBody User users) {
+	  UserResponceDto userResponceDto;
     try {
-      User user = new User(email, name);
-      userDao.create(user);
-    }
+    	 userResponceDto = userService.createUser(users);
+    	return ResponseEntity.accepted().body(userResponceDto);
+    	}
     catch (Exception ex) {
-      return "Error creating the user: " + ex.toString();
+    	userResponceDto = new UserResponceDto();
+    	userResponceDto.setMessage("Error");
+    	System.out.println("ssssssssssss"+ex.toString());
+    	return ResponseEntity.accepted().body(userResponceDto);
     }
-    return "User succesfully created!";
+    
   }
   
-  /**
-   * Delete the user with the passed id.
+    /**
+   * Retrieve the otp for the user with the passed email address.
    */
-  @RequestMapping(value="/delete")
-  @ResponseBody
-  public String delete(long id) {
+  @GetMapping(path = "/user/getotp/{emailId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public String getSite(@PathVariable("emailId") String emailId) {
+    String otp ="";
+    
     try {
-      User user = new User(id);
-      userDao.delete(user);
+      User user = userDao.getByEmail(emailId);
+      if(user!=null) {
+    	   userService.sendOTP(emailId);
+    	   return otp;
+      }else {
+    	  return "Invalide User Id";
+      }
+      
     }
     catch (Exception ex) {
-      return "Error deleting the user: " + ex.toString();
+      return "Invalide User Id";
     }
-    return "User succesfully deleted!";
   }
-  
   /**
-   * Retrieve the id for the user with the passed email address.
+   * Retrieve the otp for the user with the passed email address.
    */
-  @RequestMapping(value="/get-by-email")
-  @ResponseBody
-  public String getByEmail(String email) {
-    String userId;
+  @GetMapping(path = "/user/login/{emailId}/{password}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<UserResponceDto> login(@PathVariable("emailId") String emailId,@PathVariable("password") String password) {
+	  UserResponceDto userResponceDto;
     try {
-      User user = userDao.getByEmail(email);
-      userId = String.valueOf(user.getId());
+    	 userResponceDto = userService.login(emailId, password);
+    	 return ResponseEntity.accepted().body(userResponceDto);
     }
     catch (Exception ex) {
-      return "User not found: " + ex.toString();
+    	userResponceDto = new UserResponceDto();
+    	userResponceDto.setMessage("Error");
+      return ResponseEntity.accepted().body(userResponceDto);
     }
-    return "The user id is: " + userId;
   }
-  
-  /**
-   * Update the email and the name for the user indentified by the passed id.
-   */
-  @RequestMapping(value="/update")
-  @ResponseBody
-  public String updateName(long id, String email, String name) {
-    try {
-      User user = userDao.getById(id);
-      user.setEmail(email);
-      user.setName(name);
-      userDao.update(user);
-    }
-    catch (Exception ex) {
-      return "Error updating the user: " + ex.toString();
-    }
-    return "User succesfully updated!";
-  } 
-
-  // ------------------------
-  // PRIVATE FIELDS
-  // ------------------------
-  
-  // Wire the UserDao used inside this controller.
-  @Autowired
-  private UserDao userDao;
+  @GetMapping(path = "/user/test", produces = MediaType.APPLICATION_JSON_VALUE)
+ 	public ResponseEntity<UserResponceDto> test() {
+ 	  UserResponceDto userResponceDto;
+ 	 userResponceDto = new UserResponceDto();
+ 	 userResponceDto.setMessage("Ok");
+       return ResponseEntity.accepted().body(userResponceDto);
+     }
   
 } // class UserController

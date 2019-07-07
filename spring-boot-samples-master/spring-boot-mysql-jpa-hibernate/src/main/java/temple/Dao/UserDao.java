@@ -1,4 +1,4 @@
-package netgloo.models;
+package temple.Dao;
 
 import java.util.List;
 
@@ -7,6 +7,8 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Repository;
+
+import temple.models.User;
 
 /**
  * This class is used to access data for the User entity.
@@ -21,6 +23,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Transactional
 public class UserDao {
+	
+
+	  // ------------------------
+	  // PRIVATE FIELDS
+	  // ------------------------
+	  
+	  // An EntityManager will be automatically injected from entityManagerFactory
+	  // setup on DatabaseConfig class.
+	  @PersistenceContext
+	  private EntityManager entityManager;
   
   // ------------------------
   // PUBLIC METHODS
@@ -57,12 +69,31 @@ public class UserDao {
    * Return the user having the passed email.
    */
   public User getByEmail(String email) {
-    return (User) entityManager.createQuery(
-        "from User where email = :email")
-        .setParameter("email", email)
+	  try{
+		  return (User) entityManager.createQuery(
+        "from User where emailId = :emailId")
+        .setParameter("emailId", email)
         .getSingleResult();
+	  }catch(Exception ex) {
+		  return null;
+	  }
   }
 
+  /**
+   * Return the user having the passed mobileNumber.
+   */
+  public User getByMobileNumber(String mobileNumber) {
+	  try{
+    return (User) entityManager.createQuery(
+        "from User where mobileNumber = :mobileNumber")
+        .setParameter("mobileNumber", mobileNumber)
+        .getSingleResult();
+    }catch(Exception ex) {
+    	return null;
+    }
+  }
+  
+  
   /**
    * Return the user having the passed id.
    */
@@ -78,13 +109,5 @@ public class UserDao {
     return;
   }
 
-  // ------------------------
-  // PRIVATE FIELDS
-  // ------------------------
-  
-  // An EntityManager will be automatically injected from entityManagerFactory
-  // setup on DatabaseConfig class.
-  @PersistenceContext
-  private EntityManager entityManager;
   
 } // class UserDao

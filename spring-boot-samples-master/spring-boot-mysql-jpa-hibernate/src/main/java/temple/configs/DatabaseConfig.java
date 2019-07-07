@@ -1,4 +1,4 @@
-package netgloo.configs;
+package temple.configs;
 
 import java.util.Properties;
 
