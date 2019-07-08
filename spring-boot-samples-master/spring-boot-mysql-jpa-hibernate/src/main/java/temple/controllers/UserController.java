@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 /**
@@ -55,14 +54,15 @@ public class UserController {
    * Retrieve the otp for the user with the passed email address.
    */
   	@GetMapping(path = "/user/getotp/{emailId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public String getSite(@PathVariable("emailId") String emailId) {
+	public ResponseEntity<String> getSite(@PathVariable("emailId") String emailId) {
     String otp ="";
     try {
     	  otp= userService.sendOTP(emailId);
-    	   return otp;
+    	   return ResponseEntity.accepted().body(otp);
     }
     catch (Exception ex) {
-      return "Invalide User Id";
+    	System.out.println(ex);
+      return   ResponseEntity.accepted().body("Invalide User Id");
     }
   }
   /**

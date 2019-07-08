@@ -6,6 +6,7 @@ import java.util.Random;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.AddressException;
@@ -25,15 +26,12 @@ import temple.service.UserService;
 @Service
 public class UserServiceImpl implements UserService {
 
-	Properties emailProperties;
-	Session mailSession;
-	MimeMessage emailMessage;
 	 
 	@Value( "${fromGmailId}" )
 	String fromEmailId;
 	
-	@Value( "${emaiPassword}" )
-	String emaiPassword;
+	@Value( "${emailPassword}" )
+	String emailPassword;
 	
 	@Autowired
 	private UserDao userDao;
@@ -68,26 +66,11 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	
-	public void setMailServerProperties() {
-		String emailPort = "587";//gmail's smtp port
-		emailProperties = System.getProperties();
-		emailProperties.put("mail.smtp.port", emailPort);
-		emailProperties.put("mail.smtp.auth", "true");
-		emailProperties.put("mail.smtp.starttls.enable", "true");
-
-	}
-	public void createEmailMessage(String emailId,String otp) throws AddressException,MessagingException {
-		String emailSubject = "OTP From XXXX";
-		String emailBody = "This is an email sent by xxxxx. please use "+otp+"as OTP for login ";
-		mailSession = Session.getDefaultInstance(emailProperties, null);
-		emailMessage = new MimeMessage(mailSession);
-		emailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(emailId));
-		emailMessage.setSubject(emailSubject);
-		emailMessage.setContent(emailBody, "text/html");//for a html email
-		//emailMessage.setText(emailBody);// for a text email
-	}
+	
 	@Override
 	public String sendOTP(String emailId) throws AddressException, MessagingException {
+		String otp="";
+		try {
 		boolean isNumber=emailId.matches("-?\\d+(\\.\\d+)?");
 		User user;
 		if(isNumber) {
@@ -96,18 +79,15 @@ public class UserServiceImpl implements UserService {
 			user=userDao.getByEmail(emailId);
 		}
 		Random rand = new Random();
-		String otp = String.format("%04d", rand.nextInt(10000));
-		String emailHost = "smtp.gmail.com";
-		String fromUser = fromEmailId;
-		String fromUserEmailPassword = emaiPassword;
-		createEmailMessage(user.getEmailId(), otp);
-		setMailServerProperties();
-		Transport transport = mailSession.getTransport("smtp");
-		transport.connect(emailHost, fromUser, fromUserEmailPassword);
-		transport.sendMessage(emailMessage, emailMessage.getAllRecipients());
-		transport.close();
-	 	   user.setOTP(Integer.parseInt(otp));
-	 	   userDao.update(user);
+		 otp = String.format("%04d", rand.nextInt(10000));
+		 String sub = "OTP From XXXX";
+		 String mailBody= "This is an email sent by xxxxx. please use "+otp+"as OTP for login ";
+		sendMail(fromEmailId, emailPassword, emailId,sub,mailBody);
+ 	   user.setOTP(Integer.parseInt(otp));
+ 	   userDao.update(user);
+ 	   }catch(Exception ex) {
+ 		   System.out.println(ex);
+ 	   }
  	   return otp;
 	}
 
@@ -123,14 +103,14 @@ public class UserServiceImpl implements UserService {
 				if(user.getOTP() == Long.parseLong(password)){
 					isMatch =true;
 				}
-			}else if(user.getPassword() == password) {
+			}else if(user.getPassword().equals(password)) {
 				isMatch =true;
 			}
 		}
 		if(isMatch) {
 			   userResponceDto.setAccessToken(user.getAccessToken());
 			   userResponceDto.setEmailId(user.getEmailId());
-			   userResponceDto.setMessage("Registration Completed");
+			   userResponceDto.setMessage("login Completed");
 			   userResponceDto.setMobileNomber(user.getMobileNumber());
 			   userResponceDto.setPaid(user.isPaid());
 			   userResponceDto.setUserId(user.getUserId());
@@ -140,6 +120,37 @@ public class UserServiceImpl implements UserService {
 			 userResponceDto.setStatus("Fail");
 		}
 		return userResponceDto;
+	}
+
+
+	@Override
+	public void sendMail(final String from, final String password, String to, String sub, String msg) {
+		//Get properties object    
+        Properties props = new Properties();    
+        props.put("mail.smtp.host", "smtp.gmail.com");    
+        props.put("mail.smtp.socketFactory.port", "465");    
+        props.put("mail.smtp.socketFactory.class",    
+                  "javax.net.ssl.SSLSocketFactory");    
+        props.put("mail.smtp.auth", "true");    
+        props.put("mail.smtp.port", "465");    
+        //get Session   
+        Session session = Session.getDefaultInstance(props,    
+         new javax.mail.Authenticator() {    
+         protected PasswordAuthentication getPasswordAuthentication() {    
+         return new PasswordAuthentication(from,password);  
+         }    
+        });    
+        //compose message    
+        try {    
+         MimeMessage message = new MimeMessage(session);    
+         message.addRecipient(Message.RecipientType.TO,new InternetAddress(to));    
+         message.setSubject(sub);    
+         message.setText(msg);    
+         //send message  
+         Transport.send(message);    
+         System.out.println("message sent successfully");    
+        } catch (MessagingException e) {throw new RuntimeException(e);}    
+		
 	}
 	
 	
