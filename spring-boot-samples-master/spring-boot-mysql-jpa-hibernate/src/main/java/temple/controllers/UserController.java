@@ -68,11 +68,11 @@ public class UserController {
   /**
    * Retrieve the otp for the user with the passed email address.
    */
-  @GetMapping(path = "/user/login/{emailId}/{password}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<UserResponceDto> login(@PathVariable("emailId") String emailId,@PathVariable("password") String password) {
+  	@PostMapping(path = "/user/login/", consumes = MediaType.APPLICATION_JSON_VALUE , produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<UserResponceDto> login(@RequestBody User users) {
 	  UserResponceDto userResponceDto;
     try {
-    	 userResponceDto = userService.login(emailId, password);
+    	 userResponceDto = userService.login(users);
     	 return ResponseEntity.accepted().body(userResponceDto);
     }
     catch (Exception ex) {

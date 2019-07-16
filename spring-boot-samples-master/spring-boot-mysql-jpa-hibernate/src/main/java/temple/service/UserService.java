@@ -18,7 +18,7 @@ public interface UserService {
 	
 	public UserResponceDto createUser(User user);
 	
-	public UserResponceDto login(String emailId,String password);
+	public UserResponceDto login(User emailId);
 	
 	
 

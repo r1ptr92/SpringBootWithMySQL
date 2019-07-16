@@ -93,17 +93,18 @@ public class UserServiceImpl implements UserService {
 
 
 	@Override
-	public UserResponceDto login(String emailId, String password) {
-		User user=userDao.getByEmail(emailId);
+	public UserResponceDto login(User users) {
+		System.out.println("login "+users.getEmailId() ); 
+		User user=userDao.getByEmail(users.getEmailId());
 		UserResponceDto userResponceDto=new UserResponceDto();
-		boolean isNumber=password.matches("-?\\d+(\\.\\d+)?");
+		boolean isNumber=users.getPassword().matches("-?\\d+(\\.\\d+)?");
 		boolean isMatch=false;
 		if(user!=null) {
 			if(isNumber) {
-				if(user.getOTP() == Long.parseLong(password)){
+				if(user.getOTP() == Long.parseLong(users.getPassword())){
 					isMatch =true;
 				}
-			}else if(user.getPassword().equals(password)) {
+			}else if(user.getPassword().equals(users.getPassword())) {
 				isMatch =true;
 			}
 		}
