@@ -1,19 +1,16 @@
 package temple.controllers;
 
-import temple.Dao.UserDao;
-import temple.models.User;
-import temple.models.UserResponceDto;
-import temple.service.UserService;
-
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.stereotype.Controller;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import temple.models.UserInput;
+import temple.models.UserReg;
+import temple.models.UserResponceDto;
+import temple.service.UserService;
 /**
  * Class UserController
  */
@@ -23,9 +20,7 @@ public class UserController {
   // ------------------------
   // PUBLIC METHODS
   // ------------------------
-	  // Wire the UserDao used inside this controller.
-	  @Autowired
-	  private UserDao userDao;
+
 
 	  @Autowired
 	  private UserService userService;
@@ -35,11 +30,12 @@ public class UserController {
    * values.
    */
   @PostMapping(path = "/user/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<UserResponceDto> createUser(@RequestBody User users) {
+  public ResponseEntity<UserResponceDto> createUser(@RequestBody UserReg users) {
 	  UserResponceDto userResponceDto;
     try {
+    	System.out.println("controller----------"+users.getEmailId());
     	 userResponceDto = userService.createUser(users);
-    	return ResponseEntity.accepted().body(userResponceDto);
+    	 return ResponseEntity.accepted().body(userResponceDto);
     	}
     catch (Exception ex) {
     	userResponceDto = new UserResponceDto();
@@ -53,11 +49,13 @@ public class UserController {
     /**
    * Retrieve the otp for the user with the passed email address.
    */
-  	@GetMapping(path = "/user/getotp/{emailId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<String> getSite(@PathVariable("emailId") String emailId) {
+  
+  	@PostMapping(path = "/user/getotp", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> getOtp(@RequestBody UserReg users) {
     String otp ="";
     try {
-    	  otp= userService.sendOTP(emailId);
+    	  otp= userService.sendOTP(users);
+    	  System.out.println("otp-----------"+otp);
     	   return ResponseEntity.accepted().body(otp);
     }
     catch (Exception ex) {
@@ -65,28 +63,27 @@ public class UserController {
       return   ResponseEntity.accepted().body("Invalide User Id");
     }
   }
+  
   /**
    * Retrieve the otp for the user with the passed email address.
    */
-  @GetMapping(path = "/user/login/{emailId}/{password}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<UserResponceDto> login(@PathVariable("emailId") String emailId,@PathVariable("password") String password) {
-	  UserResponceDto userResponceDto;
-    try {
-    	 userResponceDto = userService.login(emailId, password);
-    	 return ResponseEntity.accepted().body(userResponceDto);
+  	@PostMapping(path = "/user/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResponceDto> login(@RequestBody UserReg users) {
+  	  UserResponceDto userResponceDto;
+      try {
+      	System.out.println("controller----------"+users.getEmailId());
+      	 userResponceDto = userService.login(users);
+      	 return ResponseEntity.accepted().body(userResponceDto);
+      	}
+      catch (Exception ex) {
+      	userResponceDto = new UserResponceDto();
+      	userResponceDto.setMessage("Error");
+      	System.out.println("ssssssssssss"+ex.toString());
+      	return ResponseEntity.accepted().body(userResponceDto);
+      }
+      
     }
-    catch (Exception ex) {
-    	userResponceDto = new UserResponceDto();
-    	userResponceDto.setMessage("Error");
-      return ResponseEntity.accepted().body(userResponceDto);
-    }
-  }
-  @GetMapping(path = "/user/test", produces = MediaType.APPLICATION_JSON_VALUE)
- 	public ResponseEntity<UserResponceDto> test() {
- 	  UserResponceDto userResponceDto;
- 	 userResponceDto = new UserResponceDto();
- 	 userResponceDto.setMessage("Ok");
-       return ResponseEntity.accepted().body(userResponceDto);
-     }
+  
+ 
   
 } // class UserController
