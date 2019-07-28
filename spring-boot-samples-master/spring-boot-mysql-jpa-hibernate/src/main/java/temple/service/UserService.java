@@ -5,7 +5,6 @@ import javax.mail.internet.AddressException;
 
 import org.springframework.stereotype.Service;
 
-import temple.models.UserInput;
 import temple.models.UserReg;
 import temple.models.UserResponceDto;
 
@@ -19,7 +18,5 @@ public interface UserService {
 	public UserResponceDto createUser(UserReg userReg);
 	
 	public UserResponceDto login(UserReg user);
-	
-	
 
 }

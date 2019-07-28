@@ -28,7 +28,6 @@ import temple.Repository.UserRegRepository;
 import temple.Repository.UserRepository;
 import temple.models.SubUser;
 import temple.models.User;
-import temple.models.UserInput;
 import temple.models.UserReg;
 import temple.models.UserResponceDto;
 import temple.service.UserService;

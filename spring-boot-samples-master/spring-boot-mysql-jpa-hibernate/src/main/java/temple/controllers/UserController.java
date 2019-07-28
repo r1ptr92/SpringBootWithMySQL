@@ -7,7 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import temple.models.UserInput;
 import temple.models.UserReg;
 import temple.models.UserResponceDto;
 import temple.service.UserService;
@@ -71,7 +70,6 @@ public class UserController {
     public ResponseEntity<UserResponceDto> login(@RequestBody UserReg users) {
   	  UserResponceDto userResponceDto;
       try {
-      	System.out.println("controller----------"+users.getEmailId());
       	 userResponceDto = userService.login(users);
       	 return ResponseEntity.accepted().body(userResponceDto);
       	}
@@ -81,7 +79,6 @@ public class UserController {
       	System.out.println("ssssssssssss"+ex.toString());
       	return ResponseEntity.accepted().body(userResponceDto);
       }
-      
     }
   
  
