@@ -111,6 +111,7 @@ public class UserServiceImpl implements UserService {
 				String url="http://203.212.70.200/smpp/sendsms";
 				String parms = "username=UNIQUEDEMOHTTP&password=UNIQUEDEMO2019&to="+user.getMobileNumber()+"&from=UNIQUE&udh=&text="+mobilemessage+"&dlr-mask=19&dlr-url";
 				sendSMS(url,parms);
+				user.setUserOTP(otp);
 				userRepo.save(user);
 			}
 		}catch(Exception ex) {
