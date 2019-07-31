@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Random;
@@ -55,11 +56,13 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public UserResponceDto createUser(UserReg userReg) {
-		UserReg existingUser =userRegRepo.findByEmailId(userReg.getEmailId());
+		List<UserReg> existingUserList =userRegRepo.findByEmailId(userReg.getEmailId());
+		UserReg existingUser = null;
 		UserResponceDto userResponceDto=new UserResponceDto();
-		if(existingUser==null || existingUser.getEmailId().length()<=0){
-			existingUser =userRegRepo.findByMobileNumber(userReg.getMobileNumber());
-			if(existingUser==null || Objects.isNull(existingUser.getMobileNumber())){
+		if(existingUserList ==null || existingUserList.size()==0){
+			existingUserList =userRegRepo.findByMobileNumber(userReg.getMobileNumber());
+			
+			if(existingUserList ==null || existingUserList.size()==0){
 				User user =new User(); 
 				user.setEmailId(userReg.getEmailId());
 				user.setMobileNumber(userReg.getMobileNumber());
@@ -92,16 +95,17 @@ public class UserServiceImpl implements UserService {
 
 
 	@Override
-	public String sendOTP(UserReg userInput) throws AddressException, MessagingException {
+	public String sendOTP(UserReg userInput) {
 		String otp="";
 		try {
-			User user =null; 
+			List<User> userList =null; 
 			if(userInput.getEmailId()!=null && userInput.getEmailId().length()>0) {
-				user=userRepo.findByEmailId(userInput.getEmailId());
+				userList=userRepo.findByEmailId(userInput.getEmailId());
 			}else if(userInput.getMobileNumber() > 0) {
-				user=userRepo.findByMobileNumber(userInput.getMobileNumber());
+				userList=userRepo.findByMobileNumber(userInput.getMobileNumber());
 			}
-			if(user!=null && user.getEmailId()!=null && user.getEmailId().length()>0) {
+			if(userList!=null && userList.size()>0) {
+				User user = userList.get(0);
 				Random rand = new Random();
 				otp = String.format("%04d", rand.nextInt(10000));
 				String sub = "OTP From XXXX";
@@ -123,18 +127,19 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserResponceDto login(UserReg userInput) {
-		User user =null; 
+		List<User> userList =null; 
+		User user =null;
 		UserReg userReg = null;
 		if(userInput.getEmailId()!=null && userInput.getEmailId().length()>0) {
-				user=userRepo.findByEmailId(userInput.getEmailId());
+			userList=userRepo.findByEmailId(userInput.getEmailId());
 		}else if(userInput.getMobileNumber() > 0) {
-			user=userRepo.findByMobileNumber(userInput.getMobileNumber());
+			userList=userRepo.findByMobileNumber(userInput.getMobileNumber());
 			
 		}
 		boolean isMatch=false;
 		UserResponceDto userResponceDto=new UserResponceDto();
-		if(user!=null && user.getEmailId()!=null && user.getEmailId().length()>0) {
-
+		if(userList!=null && userList.size()>0) {
+			user = userList.get(0);
 			boolean isNumber=userInput.getPassword().matches("-?\\d+(\\.\\d+)?");
 			if(isNumber) {
 				if(user.getUserOTP().equals(userInput.getPassword()))
@@ -145,7 +150,7 @@ public class UserServiceImpl implements UserService {
 
 		}
 		if(isMatch) {
-			userReg=userRegRepo.findByMobileNumber(user.getMobileNumber());
+			userReg=userRegRepo.findByMobileNumber(user.getMobileNumber()).get(0);
 			user.setLast_logged(new Date());
 			user.setLogonTime(new Date());
 			userRepo.save(user);

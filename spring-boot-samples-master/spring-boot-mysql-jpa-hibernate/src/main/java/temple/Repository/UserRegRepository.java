@@ -12,7 +12,7 @@ import temple.models.UserReg;
 public
 interface UserRegRepository extends JpaRepository<UserReg, Long> {
 
-public UserReg findByEmailId(String emailId);
+public List<UserReg> findByEmailId(String emailId);
 	
-public UserReg findByMobileNumber(long mobileNum);
+public List<UserReg> findByMobileNumber(long mobileNum);
 }
