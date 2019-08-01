@@ -119,6 +119,7 @@ public class UserServiceImpl implements UserService {
 				userRepo.save(user);
 			}
 		}catch(Exception ex) {
+			System.out.println(ex);
 			return "EmailId or Mobile no is invalid";
 		}
 		return otp;
