@@ -2,7 +2,9 @@ package temple;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 
+@EntityScan("temple.models")
 @SpringBootApplication
 public class Application {
 

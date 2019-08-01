@@ -111,10 +111,10 @@ public class UserServiceImpl implements UserService {
 				String sub = "OTP From XXXX";
 				String mailBody= "Please use "+otp+" as OTP ";
 				String mobilemessage= "Please use "+otp+" as OTP ";
-				sendMail(fromEmailId, emailPassword, user.getEmailId(),sub,mailBody);
+				//sendMail(fromEmailId, emailPassword, user.getEmailId(),sub,mailBody);
 				String url="http://203.212.70.200/smpp/sendsms";
 				String parms = "username=UNIQUEDEMOHTTP&password=UNIQUEDEMO2019&to="+user.getMobileNumber()+"&from=UNIQUE&udh=&text="+mobilemessage+"&dlr-mask=19&dlr-url";
-				sendSMS(url,parms);
+				//sendSMS(url,parms);
 				user.setUserOTP(otp);
 				userRepo.save(user);
 			}

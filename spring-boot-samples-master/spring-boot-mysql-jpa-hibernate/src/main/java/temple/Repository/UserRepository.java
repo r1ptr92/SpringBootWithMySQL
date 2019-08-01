@@ -10,8 +10,7 @@ import temple.models.User;
 import temple.models.UserReg;
 
 @Repository
-public
-interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
 	public List<User> findByEmailId(String emailId);
 	
